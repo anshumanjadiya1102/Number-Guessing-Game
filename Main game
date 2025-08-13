@@ -49,8 +49,6 @@ public class NumberGuessingGame {
                 System.out.println("Congratulations! You guessed the number in " + numberOfTries + " tries.");
             }
         }
-
-        // Do not close the scanner to avoid closing System.in
         // scanner.close();
     }
 }
