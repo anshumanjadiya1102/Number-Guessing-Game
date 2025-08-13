@@ -16,10 +16,17 @@ public class NumberGuessingGame {
 
         System.out.println("Welcome to the Number Guessing Game!");
         System.out.println("I'm thinking of a number between 1 and 100. Try to guess it!");
+        System.out.println("Press Ctrl+D (Unix) or Ctrl+Z (Windows) to exit.");
 
         // Game loop
         while (!hasGuessedCorrectly) {
             System.out.print("Enter your guess: ");
+
+            // Handle EOF (end-of-file)
+            if (!scanner.hasNext()) {
+                System.out.println("\nNo more input detected (EOF). Exiting game.");
+                break;
+            }
 
             // Check if the input is an integer
             if (!scanner.hasNextInt()) {
@@ -47,3 +54,5 @@ public class NumberGuessingGame {
         // scanner.close();
     }
 }
+
+// EOF
