@@ -43,6 +43,7 @@ public class NumberGuessingGame {
             }
         }
 
-        scanner.close();
+        // Do not close the scanner to avoid closing System.in
+        // scanner.close();
     }
 }
