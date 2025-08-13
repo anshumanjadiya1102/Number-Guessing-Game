@@ -1,0 +1,48 @@
+import java.util.Scanner;
+import java.util.Random;
+
+public class NumberGuessingGame {
+
+    public static void main(String[] args) {
+        // Create scanner for input and random for number generation
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+
+        // Generate random number between 1 and 100
+        int numberToGuess = random.nextInt(100) + 1;
+        int numberOfTries = 0;
+        int guess;
+        boolean hasGuessedCorrectly = false;
+
+        System.out.println("Welcome to the Number Guessing Game!");
+        System.out.println("I'm thinking of a number between 1 and 100. Try to guess it!");
+
+        // Game loop
+        while (!hasGuessedCorrectly) {
+            System.out.print("Enter your guess: ");
+
+            // Check if the input is an integer
+            if (!scanner.hasNextInt()) {
+                System.out.println("That's not a valid number. Please enter an integer.");
+                scanner.next(); // discard invalid input
+                continue;
+            }
+
+            guess = scanner.nextInt();
+            numberOfTries++;
+
+            if (guess < 1 || guess > 100) {
+                System.out.println("Your guess is out of range! Please try a number between 1 and 100.");
+            } else if (guess < numberToGuess) {
+                System.out.println("Too low! Try again.");
+            } else if (guess > numberToGuess) {
+                System.out.println("Too high! Try again.");
+            } else {
+                hasGuessedCorrectly = true;
+                System.out.println("Congratulations! You guessed the number in " + numberOfTries + " tries.");
+            }
+        }
+
+        scanner.close();
+    }
+}
