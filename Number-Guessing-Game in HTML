@@ -5,52 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Number Guessing Game</title>
     <link rel="stylesheet" href="style.css">
-<style>
-body {
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f0f0f0;
-    margin: 0;
-}
+    <style>
+    body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+    }
 
-.container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
+    .container {
+        background-color: darkblue;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
 
-.form input, .form button {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
+    .form input, .form button {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
 
-.form button {
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-}
+    .form button {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
 
-.resultParas p {
-    margin: 5px 0;
-}
+    .resultParas p {
+        margin: 5px 0;
+    }
 
-#resetGame {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-</style>
+    #resetGame {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -68,6 +68,79 @@ body {
         </div>
         <button id="resetGame" style="display: none;">Play Again</button>
     </div>
-    <script src="script.js"></script>
+    <script>
+    let randomNumber = Math.floor(Math.random() * 100) + 1;
+    let guesses = 1;
+    let guessList = [];
+
+    const guessField = document.getElementById('guessField');
+    const submitGuess = document.getElementById('submitGuess');
+    const guessesPara = document.querySelector('.guesses');
+    const lastResult = document.querySelector('.lastResult');
+    const lowOrHi = document.querySelector('.lowOrHi');
+    const resetButton = document.getElementById('resetGame');
+
+    function resetGame() {
+        guesses = 1;
+        guessList = [];
+        randomNumber = Math.floor(Math.random() * 100) + 1;
+        guessesPara.textContent = '';
+        lastResult.textContent = '';
+        lowOrHi.textContent = '';
+        guessField.value = '';
+        guessField.disabled = false;
+        submitGuess.disabled = false;
+        resetButton.style.display = 'none';
+    }
+
+    function checkGuess() {
+        const userGuess = Number(guessField.value);
+
+        if (!userGuess || userGuess < 1 || userGuess > 100) {
+            lastResult.textContent = 'Please enter a valid number between 1 and 100!';
+            lastResult.style.backgroundColor = 'orange';
+            lowOrHi.textContent = '';
+            return;
+        }
+
+        guessList.push(userGuess);
+
+        guessesPara.textContent = 'Previous guesses: ' + guessList.join(', ');
+
+        if (userGuess === randomNumber) {
+            lastResult.textContent = 'Congratulations! You got it right!';
+            lastResult.style.backgroundColor = '#28a745';
+            lowOrHi.textContent = '';
+            guessField.disabled = true;
+            submitGuess.disabled = true;
+            resetButton.style.display = 'inline-block';
+        } else if (guesses === 10) {
+            lastResult.textContent = '!!!GAME OVER!!!';
+            lastResult.style.backgroundColor = '#dc3545';
+            lowOrHi.textContent = `The number was ${randomNumber}.`;
+            guessField.disabled = true;
+            submitGuess.disabled = true;
+            resetButton.style.display = 'inline-block';
+        } else {
+            lastResult.textContent = 'Wrong!';
+            lastResult.style.backgroundColor = '#ffc107';
+            if (userGuess < randomNumber) {
+                lowOrHi.textContent = 'Last guess was too low!';
+            } else {
+                lowOrHi.textContent = 'Last guess was too high!';
+            }
+        }
+
+        guesses++;
+        guessField.value = '';
+        guessField.focus();
+    }
+
+    submitGuess.addEventListener('click', checkGuess);
+    guessField.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') checkGuess();
+    });
+    resetButton.addEventListener('click', resetGame);
+    </script>
 </body>
 </html>
