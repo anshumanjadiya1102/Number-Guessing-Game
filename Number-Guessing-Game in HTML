@@ -6,50 +6,93 @@
     <title>Number Guessing Game</title>
     <link rel="stylesheet" href="style.css">
     <style>
-    body {
-        font-family: sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-color: #f0f0f0;
-        margin: 0;
-    }
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+}
 
-    .container {
-        background-color: darkblue;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
+.container {
+    background-color: darkblue;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: white;
+    animation: fadeIn 1s ease-in-out;
+}
 
-    .form input, .form button {
-        padding: 10px;
-        margin: 5px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    .form button {
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-    }
+.form input, .form button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
 
-    .resultParas p {
-        margin: 5px 0;
-    }
+.form input:focus {
+    outline: none;
+    box-shadow: 0 0 5px #007bff;
+    border-color: #007bff;
+}
 
-    #resetGame {
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: red;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+.form button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.form button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.resultParas p {
+    margin: 5px 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.resultParas p.show {
+    opacity: 1;
+}
+
+#resetGame {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+#resetGame:hover {
+    background-color: darkred;
+    transform: scale(1.05);
+}
+
+.shake {
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
     </style>
 </head>
 <body>
@@ -69,78 +112,89 @@
         <button id="resetGame" style="display: none;">Play Again</button>
     </div>
     <script>
-    let randomNumber = Math.floor(Math.random() * 100) + 1;
-    let guesses = 1;
-    let guessList = [];
+let randomNumber = Math.floor(Math.random() * 100) + 1;
+let guesses = 1;
+let guessList = [];
 
-    const guessField = document.getElementById('guessField');
-    const submitGuess = document.getElementById('submitGuess');
-    const guessesPara = document.querySelector('.guesses');
-    const lastResult = document.querySelector('.lastResult');
-    const lowOrHi = document.querySelector('.lowOrHi');
-    const resetButton = document.getElementById('resetGame');
+const guessField = document.getElementById('guessField');
+const submitGuess = document.getElementById('submitGuess');
+const guessesPara = document.querySelector('.guesses');
+const lastResult = document.querySelector('.lastResult');
+const lowOrHi = document.querySelector('.lowOrHi');
+const resetButton = document.getElementById('resetGame');
 
-    function resetGame() {
-        guesses = 1;
-        guessList = [];
-        randomNumber = Math.floor(Math.random() * 100) + 1;
-        guessesPara.textContent = '';
-        lastResult.textContent = '';
+function resetGame() {
+    guesses = 1;
+    guessList = [];
+    randomNumber = Math.floor(Math.random() * 100) + 1;
+    guessesPara.textContent = '';
+    lastResult.textContent = '';
+    lowOrHi.textContent = '';
+
+    [guessesPara, lastResult, lowOrHi].forEach(p => p.classList.remove('show'));
+
+    guessField.value = '';
+    guessField.disabled = false;
+    submitGuess.disabled = false;
+    resetButton.style.display = 'none';
+    document.querySelector('.container').classList.remove('shake');
+    document.querySelector('.container').style.transform = 'scale(1)';
+}
+
+function showMessage(element, message) {
+    element.textContent = message;
+    element.classList.add('show');
+}
+
+function checkGuess() {
+    const userGuess = Number(guessField.value);
+
+    if (!userGuess || userGuess < 1 || userGuess > 100) {
+        showMessage(lastResult, 'Please enter a valid number between 1 and 100!');
+        lastResult.style.backgroundColor = 'orange';
         lowOrHi.textContent = '';
-        guessField.value = '';
-        guessField.disabled = false;
-        submitGuess.disabled = false;
-        resetButton.style.display = 'none';
+        return;
     }
 
-    function checkGuess() {
-        const userGuess = Number(guessField.value);
+    guessList.push(userGuess);
+    showMessage(guessesPara, 'Previous guesses: ' + guessList.join(', '));
 
-        if (!userGuess || userGuess < 1 || userGuess > 100) {
-            lastResult.textContent = 'Please enter a valid number between 1 and 100!';
-            lastResult.style.backgroundColor = 'orange';
-            lowOrHi.textContent = '';
-            return;
-        }
-
-        guessList.push(userGuess);
-
-        guessesPara.textContent = 'Previous guesses: ' + guessList.join(', ');
-
-        if (userGuess === randomNumber) {
-            lastResult.textContent = 'Congratulations! You got it right!';
-            lastResult.style.backgroundColor = '#28a745';
-            lowOrHi.textContent = '';
-            guessField.disabled = true;
-            submitGuess.disabled = true;
-            resetButton.style.display = 'inline-block';
-        } else if (guesses === 10) {
-            lastResult.textContent = '!!!GAME OVER!!!';
-            lastResult.style.backgroundColor = '#dc3545';
-            lowOrHi.textContent = `The number was ${randomNumber}.`;
-            guessField.disabled = true;
-            submitGuess.disabled = true;
-            resetButton.style.display = 'inline-block';
-        } else {
-            lastResult.textContent = 'Wrong!';
-            lastResult.style.backgroundColor = '#ffc107';
-            if (userGuess < randomNumber) {
-                lowOrHi.textContent = 'Last guess was too low!';
-            } else {
-                lowOrHi.textContent = 'Last guess was too high!';
-            }
-        }
-
-        guesses++;
-        guessField.value = '';
-        guessField.focus();
+    if (userGuess === randomNumber) {
+        showMessage(lastResult, '🎉 Congratulations! You got it right!');
+        lastResult.style.backgroundColor = '#28a745';
+        lowOrHi.textContent = '';
+        document.querySelector('.container').style.transform = 'scale(1.05)';
+        endGame();
+    } else if (guesses === 10) {
+        showMessage(lastResult, '💥 GAME OVER!');
+        lastResult.style.backgroundColor = '#dc3545';
+        showMessage(lowOrHi, `The number was ${randomNumber}.`);
+        document.querySelector('.container').style.transform = 'scale(1.05)';
+        endGame();
+    } else {
+        showMessage(lastResult, '❌ Wrong!');
+        lastResult.style.backgroundColor = '#ffc107';
+        showMessage(lowOrHi, userGuess < randomNumber ? 'Too low!' : 'Too high!');
+        document.querySelector('.container').classList.add('shake');
+        setTimeout(() => document.querySelector('.container').classList.remove('shake'), 400);
     }
 
-    submitGuess.addEventListener('click', checkGuess);
-    guessField.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') checkGuess();
-    });
-    resetButton.addEventListener('click', resetGame);
+    guesses++;
+    guessField.value = '';
+    guessField.focus();
+}
+
+function endGame() {
+    guessField.disabled = true;
+    submitGuess.disabled = true;
+    resetButton.style.display = 'inline-block';
+}
+
+submitGuess.addEventListener('click', checkGuess);
+guessField.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkGuess();
+});
+resetButton.addEventListener('click', resetGame);
     </script>
 </body>
 </html>
