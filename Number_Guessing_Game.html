@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Number Guessing Game</title>
+  <style>
+    /* Animated gradient background */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #00c6ff, #0072ff, #00c6ff, #0072ff);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      color: white;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .game-container {
+      background: rgba(0, 0, 0, 0.65);
+      padding: 35px 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      width: 90%;
+      max-width: 420px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    select, input[type="number"] {
+      padding: 12px;
+      font-size: 16px;
+      width: 80%;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    button {
+      padding: 10px 25px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px #ffcc00;
+    }
+
+    button:hover {
+      background-color: #ffaa00;
+      transform: scale(1.05);
+    }
+
+    .result, .tries-left {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      opacity: 0;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .shake {
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .success-glow {
+      box-shadow: 0 0 15px 3px #00ff88;
+    }
+
+    .failure-glow {
+      box-shadow: 0 0 15px 3px #ff3333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container" id="gameBox">
+    <h1>🎯 Number Guessing Game</h1>
+
+    <div id="difficultySection">
+      <label for="difficulty">Choose difficulty:</label>
+      <br>
+      <select id="difficulty" class="difficulty">
+        <option value="easy">Easy (10 tries)</option>
+        <option value="medium" selected>Medium (7 tries)</option>
+        <option value="hard">Hard (5 tries)</option>
+      </select>
+      <br>
+      <button id="startGameBtn">Start Game</button>
+    </div>
+
+    <div id="gameSection" class="hidden">
+      <p>Guess a number between 1 and 100:</p>
+      <input type="number" id="guessInput" min="1" max="100" placeholder="Enter your guess" />
+      <br>
+      <button id="guessBtn">Submit Guess</button>
+      <div id="triesLeft" class="tries-left"></div>
+      <div id="result" class="result"></div>
+      <button id="playAgainBtn" class="hidden">🔁 Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const difficultyLevels = {
+      easy: 10,
+      medium: 7,
+      hard: 5
+    };
+
+    let maxTries;
+    let numberToGuess;
+    let tries = 0;
+
+    const guessInput = document.getElementById("guessInput");
+    const guessBtn = document.getElementById("guessBtn");
+    const result = document.getElementById("result");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const triesLeft = document.getElementById("triesLeft");
+    const difficultySelect = document.getElementById("difficulty");
+    const startGameBtn = document.getElementById("startGameBtn");
+    const gameSection = document.getElementById("gameSection");
+    const difficultySection = document.getElementById("difficultySection");
+    const gameBox = document.getElementById("gameBox");
+
+    function showMessage(message, isSuccess = false) {
+      result.textContent = message;
+      result.classList.remove("shake");
+      result.style.color = isSuccess ? "#00ff99" : "#ff4444";
+      result.style.opacity = "0";
+      setTimeout(() => {
+        result.style.opacity = "1";
+      }, 50);
+    }
+
+    function updateTriesLeft() {
+      triesLeft.textContent = `Tries left: ${maxTries - tries}`;
+    }
+
+    function endGame(message, isSuccess = false) {
+      showMessage(message, isSuccess);
+      guessBtn.disabled = true;
+      playAgainBtn.classList.remove("hidden");
+
+      if (isSuccess) {
+        gameBox.classList.add("success-glow");
+      } else {
+        gameBox.classList.add("failure-glow");
+      }
+    }
+
+    function resetGame() {
+      numberToGuess = Math.floor(Math.random() * 100) + 1;
+      tries = 0;
+      guessInput.value = "";
+      result.textContent = "";
+      result.style.opacity = "0";
+      guessBtn.disabled = false;
+      playAgainBtn.classList.add("hidden");
+      gameBox.classList.remove("success-glow", "failure-glow");
+      updateTriesLeft();
+    }
+
+    guessBtn.addEventListener("click", () => {
+      const guess = parseInt(guessInput.value);
+
+      if (isNaN(guess)) {
+        showMessage("❌ Please enter a valid number.");
+        result.classList.add("shake");
+        return;
+      }
+
+      if (guess < 1 || guess > 100) {
+        showMessage("⚠️ Number out of range (1–100).");
+        result.classList.add("shake");
+        return;
+      }
+
+      tries++;
+      updateTriesLeft();
+
+      if (guess < numberToGuess) {
+        showMessage("Too low! Try again.");
+        result.classList.add("shake");
+      } else if (guess > numberToGuess) {
+        showMessage("Too high! Try again.");
+        result.classList.add("shake");
+      } else {
+        endGame(`🎉 Correct! You guessed it in ${tries} tries.`, true);
+        return;
+      }
+
+      if (tries >= maxTries) {
+        endGame(`❌ Out of tries! The number was ${numberToGuess}.`);
+      }
+    });
+
+    playAgainBtn.addEventListener("click", () => {
+      difficultySection.classList.remove("hidden");
+      gameSection.classList.add("hidden");
+    });
+
+    startGameBtn.addEventListener("click", () => {
+      const selectedDifficulty = difficultySelect.value;
+      maxTries = difficultyLevels[selectedDifficulty];
+
+      difficultySection.classList.add("hidden");
+      gameSection.classList.remove("hidden");
+
+      resetGame();
+    });
+  </script>
+
+</body>
+</html>
