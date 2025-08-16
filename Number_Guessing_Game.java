@@ -42,7 +42,7 @@ public class Number_Guessing_Game {
             } else if (guess > numberToGuess) {
                 System.out.println("Too high! Try again.");
             } else {
-                System.out.println("🎉 Congratulations! You guessed the number in " + numberOfTries + " tries.");
+                System.out.println(" 🎉 Congratulations! You guessed the number in " + numberOfTries + " tries.");
                 break; // Exit loop after correct guess
             }
         }
